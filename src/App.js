@@ -81,13 +81,14 @@ class App extends React.Component {
       <div className="App">
         {this.state.loading ?
           <></>
-          : 
+          : !this.state.connected ?
             <>
             <p className='prompt'>Hello! In order to connect with {this.state.userToConnect.name}, please choose your name from the list below</p>
             <Select className="dropdown" placeholder='' options={this.state.users} onChange={(option) => { this.setState({ currentUser: option, errorMessage: '' }) }} />
             <button className="button-1" onClick={this.onClick}> Connect </button>
             <p>{this.state.connectErrorMessage}</p>
           </>
+          : <p className='prompt'>{this.state.connectedMessage}</p>
           
           }
 
