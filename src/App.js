@@ -1,15 +1,26 @@
-import logo from './logo.svg';
 import './App.css';
 import Select from 'react-select'
 import React, { useState, useEffect } from 'react'
 
-
-
-function App() {
-  const searchParams = new URLSearchParams(document.location.search);
-  const [users, setUsers] = useState([]);
-
-  useEffect(() => {
+class App extends React.Component {
+  // Add constructor
+  constructor(props) {
+    super(props);
+    this.state = {
+      users: [],
+      loading: true,
+      userToConnect: {},
+      currentUser: {},
+      connected: false,
+      connectedMessage: '',
+      connectErrorMessage: '',
+      errorMessage: ''
+    };
+    this.onClick = this.onClick.bind(this);
+  }
+  // Define methods
+  componentDidMount() {
+    const userToConnectId = (new URLSearchParams(document.location.search)).get('user');
     fetch('https://connections-societal-thinking-f49fc4a0c28b.herokuapp.com/users')
       .then((res) => {
         return res.json();
@@ -17,34 +28,72 @@ function App() {
       .then((data) => {
         console.log(data);
         const mappedData = data.map((value) => {
-          return { value: value._id, label: value.name + ' - ' + value.organisation }
+          return { value: value._id, label: value.name + (value.organization ? (' - ' + value.organization) : '') }
         });
-        setUsers(mappedData);
+        const userToConnect = data.find((value) => { return value._id == userToConnectId });
+        if(!userToConnect) {
+          this.setState({
+            loading: false,
+            errorMessage: `Couldn't find the person you're trying to connect with. Please try scanning a different QR code.`
+          });
+        }
+        else{
+        this.setState({
+          users: mappedData,
+          loading: false,
+          userToConnect: data.find((value) => { return value._id == userToConnectId })
+        });
+      }
       });
-  }, []);
-  console.log(searchParams);
-  return (
-    <div className="App">
-      {searchParams.get('user') ?
-        <Select options={users} />
-        : <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to           {searchParams.get('user')} reload.
 
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>}
+  }
 
-    </div>
-  );
+  onClick() {
+    console.log(this.state);
+    fetch(`https://connections-societal-thinking-f49fc4a0c28b.herokuapp.com/connect?user1=${this.state.userToConnect._id}&user2=${this.state.currentUser.value}`, { method: 'POST' })
+      .then((res) => {
+        if (res.status == 200) {
+          this.setState({
+            connected: true,
+            connectedMessage: `You've successfully connected with ${this.state.userToConnect.name}! Check the map to see your connection. `
+          })
+        }
+        else if (res.status == 409) {
+          this.setState({
+            connected: true,
+            connectedMessage: `You've already connected with ${this.state.userToConnect.name}! Check the map to see your connection. `
+          });
+        }
+        else {
+          this.setState({
+            connectErrorMessage: `There was an issue connecting you two. Please try again! `
+          });
+        }
+        return res.json();
+      });
+  }
+
+
+
+  // Use render method
+  render() {
+    return (
+      <div className="App">
+        {this.state.loading ?
+          <></>
+          : 
+            <>
+            <p className='prompt'>Hello! In order to connect with {this.state.userToConnect.name}, please choose your name from the list below</p>
+            <Select className="dropdown" placeholder='' options={this.state.users} onChange={(option) => { this.setState({ currentUser: option, errorMessage: '' }) }} />
+            <button className="button-1" onClick={this.onClick}> Connect </button>
+            <p>{this.state.connectErrorMessage}</p>
+          </>
+          
+          }
+
+      </div>
+    );
+  }
 }
 
 export default App;
