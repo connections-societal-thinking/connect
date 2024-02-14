@@ -1,6 +1,6 @@
 import './App.css';
 import Select from 'react-select'
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 
 class App extends React.Component {
   // Add constructor
@@ -30,7 +30,7 @@ class App extends React.Component {
         const mappedData = data.map((value) => {
           return { value: value._id, label: value.name + (value.organization ? (' - ' + value.organization) : '') }
         });
-        const userToConnect = data.find((value) => { return value._id == userToConnectId });
+        const userToConnect = data.find((value) => { return value._id === userToConnectId });
         if(!userToConnect) {
           this.setState({
             loading: false,
@@ -41,7 +41,7 @@ class App extends React.Component {
         this.setState({
           users: mappedData,
           loading: false,
-          userToConnect: data.find((value) => { return value._id == userToConnectId })
+          userToConnect: data.find((value) => { return value._id === userToConnectId })
         });
       }
       });
@@ -52,13 +52,13 @@ class App extends React.Component {
     console.log(this.state);
     fetch(`https://connections-societal-thinking-f49fc4a0c28b.herokuapp.com/connect?user1=${this.state.userToConnect._id}&user2=${this.state.currentUser.value}`, { method: 'POST' })
       .then((res) => {
-        if (res.status == 200) {
+        if (res.status === 200) {
           this.setState({
             connected: true,
             connectedMessage: `You've successfully connected with ${this.state.userToConnect.name}! Check the map to see your connection. `
           })
         }
-        else if (res.status == 409) {
+        else if (res.status === 409) {
           this.setState({
             connected: true,
             connectedMessage: `You've already connected with ${this.state.userToConnect.name}! Check the map to see your connection. `
