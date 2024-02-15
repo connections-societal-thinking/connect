@@ -12,6 +12,23 @@ body {
   font-family: "Campaign W00 Regular",sans-serif;
 }
 
+.prompt_change {
+  font-size: 15px;
+}
+
+.reset_button {
+  font-size: 15px;
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  /*optional*/
+  font-family: arial, sans-serif;
+  /*input has OS specific font-family*/
+  color: #2a2b74;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 @font-face {
   font-family: "Campaign W00 Regular";
   src: url("https://db.onlinewebfonts.com/t/4c0a4061110cfbd1e351471da5d1c5c0.eot");
@@ -67,6 +84,7 @@ body {
   -webkit-user-select: none;
   touch-action: manipulation;
   margin-top: 12px;
+  margin-bottom: 12px;
 }
 
 .button-1:hover,
